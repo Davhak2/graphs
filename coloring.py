@@ -1,36 +1,25 @@
 import networkx as nx
-from itertools import permutations
 import matplotlib.pyplot as plt
 
 G = nx.complete_graph(4)
+
+
+mapping = {0: 'A', 1: 'B', 2: 'C', 3: 'D'}
+G = nx.relabel_nodes(G, mapping)
+
 L = nx.line_graph(G)
 
-nodes = list(L.nodes())
-n = len(nodes)
+fig, axes = plt.subplots(1, 2, figsize=(12, 5))
 
-min_sum = float('inf')
-best_coloring = None
+pos_G = nx.spring_layout(G, seed=42)
+nx.draw(G, pos_G, with_labels=True, node_color='skyblue', edge_color='gray',
+		node_size=800, font_size=14, ax=axes[0])
+axes[0].set_title("Լրիվ գրաֆ՝ K₄", fontsize=16)
 
-for p in permutations(range(1, n+1)):
-	coloring = dict(zip(nodes, p))
-	if all(coloring[u] != coloring[v] for u, v in L.edges()):
-		total = sum(coloring.values())
-	if total < min_sum:
-		min_sum = total
-	best_coloring = coloring
+pos_L = nx.spring_layout(L, seed=42)
+nx.draw(L, pos_L, with_labels=True, node_color='lightgreen', edge_color='black',
+		node_size=800, font_size=14, ax=axes[1])
+axes[1].set_title("Գծային գրաֆ՝ L(K₄)", fontsize=16)
 
-print("Գումարային քրոմատիկ թիվ:", min_sum)
-print("Լավագույն ներկում:", best_coloring)
-
-pos = nx.spring_layout(L, seed=42)
-colors = [best_coloring[node] for node in L.nodes()]
-labels = {node: f"{node}\n{best_coloring[node]}" for node in L.nodes()}
-
-plt.figure(figsize=(8,6))
-nx.draw(L, pos, with_labels=True, labels=labels, node_color=colors,
-		cmap=plt.cm.Paired, node_size=1200, font_size=11,
-		font_color='black', edge_color='gray', linewidths=1.5)
-plt.title("L(K₄) գրաֆի լավագույն գումարային ներկում", fontsize=14)
-plt.axis('off')
 plt.tight_layout()
 plt.show()
